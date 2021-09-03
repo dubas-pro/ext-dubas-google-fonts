@@ -1,9 +1,18 @@
 {
     "options": {
         "fontFace": {
+            "lato": "Lato",
+            "montserrat": "montserrat",
+            "opensans": "Open Sans",
             "oswald": "Oswald",
             "raleway": "Raleway",
-            "lato": "Lato"
+            "roboto": "Roboto",
+            "sourcesanspro": "Source Sans Pro",
+            "ubuntu": "Ubuntu",
+            "glory": "Glory",
+            "nunito": "Nunito",
+            "poppins": "Poppins",
+            "quicksand": "Quicksand"
         }
     }
 }

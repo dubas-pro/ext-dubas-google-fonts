@@ -6,9 +6,18 @@
         },
         "fontFaceList": [
             "__APPEND__",
+            "montserrat",
+            "lato",
+            "opensans",
             "oswald",
             "raleway",
-            "lato"
+            "roboto",
+            "sourcesanspro",
+            "ubuntu",
+            "glory",
+            "nunito",
+            "poppins",
+            "quicksand"
         ]
     }
 }
