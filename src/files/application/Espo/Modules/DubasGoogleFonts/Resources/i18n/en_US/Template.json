@@ -1,0 +1,9 @@
+{
+    "options": {
+        "fontFace": {
+            "oswald": "Oswald",
+            "raleway": "Raleway",
+            "lato": "Lato"
+        }
+    }
+}
