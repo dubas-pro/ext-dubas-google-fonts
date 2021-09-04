@@ -20,20 +20,31 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-class AfterUninstall
+namespace Espo\Modules\DubasGoogleFonts\Core\Utils\Database\Schema;
+
+use Espo\Core\Di;
+
+class Schema extends \Espo\Core\Utils\Database\Schema\Schema implements
+    Di\MetadataAware,
+    Di\ConfigAware,
+    Di\EntityManagerAware
 {
-    protected $container;
+    use Di\MetadataSetter;
 
-    public function run($container)
-    {
-        $this->container = $container;
-    }
+    use Di\ConfigSetter;
 
-    protected function clearCache()
+    use Di\EntityManagerSetter;
+
+    protected function initRebuildActions($currentSchema = null, $metadataSchema = null)
     {
-        try {
-            $this->container->get('dataManager')->clearCache();
-        } catch (\Exception $e) {
-        }
+        parent::initRebuildActions($currentSchema, $metadataSchema);
+
+        $rebuildActionClasses = [
+            'afterRebuild' => [
+                new \Espo\Modules\DubasGoogleFonts\Core\Utils\Database\Schema\rebuildActions\ApplyFonts($this->metadata, $this->config, $this->entityManager),
+            ],
+        ];
+
+        $this->rebuildActionClasses = array_merge_recursive($rebuildActionClasses, $this->rebuildActionClasses);
     }
 }

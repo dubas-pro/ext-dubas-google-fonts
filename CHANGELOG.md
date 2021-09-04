@@ -7,4 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## 0.0.1 - 2021-09-03
 
 ### Added
-- First release.
+- First release
+- Lato font
+- Montserrat font
+- Open Sans font
+- Oswald font
+- Raleway font
+- Roboto font
+- Source Sans Pro font
+- Ubuntu font
+- Glory font
+- Nunito font
+- Poppins font
+- Quicksand font

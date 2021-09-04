@@ -2,6 +2,9 @@
 
 Feel free to browse the source, look at open issues and keep track of development. 
 
+Product page: [https://devcrm.it/google-fonts](https://devcrm.it/google-fonts)
+Documentation: [https://docs.dubas.pro/extensions/google-fonts/](https://docs.dubas.pro/extensions/google-fonts/)
+
 ## Support
 
 This repository is not suitable for support. Please don't use our issue tracker for support requests, but for core issues only.

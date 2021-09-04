@@ -1,0 +1,23 @@
+{
+    "Tcpdf": {
+        "implementationClassNameMap": {
+            "entity": "Espo\\Tools\\Pdf\\Tcpdf\\TcpdfEntityPrinter",
+            "collection": "Espo\\Tools\\Pdf\\Tcpdf\\TcpdfCollectionPrinter"
+        },
+        "fontFaceList": [
+            "__APPEND__",
+            "montserrat",
+            "lato",
+            "opensans",
+            "oswald",
+            "raleway",
+            "roboto",
+            "sourcesanspro",
+            "ubuntu",
+            "glory",
+            "nunito",
+            "poppins",
+            "quicksand"
+        ]
+    }
+}
