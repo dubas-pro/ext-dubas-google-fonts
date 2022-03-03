@@ -4,7 +4,8 @@
     "description": "Add most popular fonts from Google Fonts to your PDF templates.",
     "author": "DUBAS S.C. - contact@dubas.pro",
     "acceptableVersions": [
-        ">=6.0.0"
+        ">=6.0.0",
+        "<=7.0.0"
     ],
     "php": [
         ">=7.3"
