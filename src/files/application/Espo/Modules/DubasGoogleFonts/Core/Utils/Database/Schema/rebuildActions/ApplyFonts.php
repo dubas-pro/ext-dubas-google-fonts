@@ -31,14 +31,18 @@ class ApplyFonts extends \Espo\Core\Utils\Database\Schema\BaseRebuildActions
         $tcpdfFontsDir = 'vendor/tecnickcom/tcpdf/fonts/poppins.z';
         if (!file_exists($tcpdfFontsDir)) {
             $fonts = [
-                'Lato-Bold.ttf',
-                'Lato-Regular.ttf',
-                'Lato-BoldItalic.ttf',
-                'Lato-Italic.ttf',
+                'Exo-Bold.ttf',
+                'Exo-Regular.ttf',
+                'Exo-BoldItalic.ttf',
+                'Exo-Italic.ttf',
                 'Glory-Bold.ttf',
                 'Glory-Regular.ttf',
                 'Glory-BoldItalic.ttf',
                 'Glory-Italic.ttf',
+                'Lato-Bold.ttf',
+                'Lato-Regular.ttf',
+                'Lato-BoldItalic.ttf',
+                'Lato-Italic.ttf',
                 'Montserrat-Bold.ttf',
                 'Montserrat-Regular.ttf',
                 'Montserrat-BoldItalic.ttf',
