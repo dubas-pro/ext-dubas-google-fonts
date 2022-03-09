@@ -1,9 +1,5 @@
 {
     "Tcpdf": {
-        "implementationClassNameMap": {
-            "entity": "Espo\\Tools\\Pdf\\Tcpdf\\TcpdfEntityPrinter",
-            "collection": "Espo\\Tools\\Pdf\\Tcpdf\\TcpdfCollectionPrinter"
-        },
         "fontFaceList": [
             "__APPEND__",
             "montserrat",
