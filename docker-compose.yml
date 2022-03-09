@@ -1,0 +1,198 @@
+version: '3'
+
+################################################################################
+# SERVICES
+################################################################################
+services:
+  # ------------------------------------------------------------
+  # Bind (DNS Server)
+  # ------------------------------------------------------------
+  bind:
+    image: cytopia/bind
+    hostname: bind
+    restart: always
+
+    environment:
+      - DNS_FORWARDER=8.8.8.8,8.8.4.4
+      - DNSSEC_VALIDATE=no
+
+    ports:
+      - 1053:53/tcp
+      - 1053:53/udp
+
+    dns:
+      - 127.0.0.1
+
+    networks:
+      app_net:
+        ipv4_address: 172.26.238.100
+
+  # ------------------------------------------------------------
+  # PHP
+  # ------------------------------------------------------------
+  php:
+    image: devilbox/php-fpm:8.0-work
+    hostname: php
+
+    environment:
+      - COMPOSER_MEMORY_LIMIT=-1
+
+    dns:
+      - 172.26.238.100
+
+    networks:
+      app_net:
+        ipv4_address: 172.26.238.10
+
+    volumes:
+      - $PWD:/var/www/default:rw
+
+      # Users SSH directory (read-only)
+      - ${HOME}/.ssh:/home/devilbox/.ssh:ro
+
+      # Users .bash_history file
+      - ${HOME}/.bash_history:/home/devilbox/.bash_history:rw
+
+    working_dir: /var/www/default
+
+    depends_on:
+      - bind
+
+  # ------------------------------------------------------------
+  # Web Server
+  # ------------------------------------------------------------
+  httpd:
+    image: devilbox/apache-2.4
+    restart: always
+    hostname: httpd
+
+    environment:
+      - MAIN_VHOST_DOCROOT=site
+      - PHP_FPM_ENABLE=1
+      - PHP_FPM_SERVER_ADDR=172.26.238.10
+      - PHP_FPM_SERVER_PORT=9000
+      - PHP_FPM_TIMEOUT=180
+
+    ports:
+      - 8080:80
+
+    networks:
+      app_net:
+        ipv4_address: 172.26.238.11
+
+    volumes:
+      - $PWD:/var/www/default:rw
+
+    depends_on:
+      - bind
+      - php
+
+  # ------------------------------------------------------------
+  # MySQL Database
+  # ------------------------------------------------------------
+  mysql:
+    image: devilbox/mysql:mariadb-10.5
+    hostname: mysql
+
+    environment:
+      - MYSQL_ROOT_PASSWORD
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_DATABASE
+
+    ports:
+      - 3306:3306
+
+    networks:
+      app_net:
+        ipv4_address: 172.26.238.12
+
+    volumes:
+      - mysql:/var/lib/mysql:rw
+
+    depends_on:
+      - bind
+      - php
+      - httpd
+
+  # ------------------------------------------------------------
+  # Fake SMTP server
+  # ------------------------------------------------------------
+  smtp4dev:
+    image: rnwood/smtp4dev:v3
+    restart: always
+    hostname: smtp4dev
+
+    environment:
+      - ServerOptions__HostName=smtp4dev
+
+    ports:
+      - 5000:80
+      - 25:25
+      - 143:143
+
+    networks:
+      app_net:
+        ipv4_address: 172.26.238.13
+
+    volumes:
+      - smtp4dev-data:/smtp4dev
+
+  # ------------------------------------------------------------
+  # phpMyAdmin
+  # ------------------------------------------------------------
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    restart: always
+
+    environment:
+      - PMA_HOST=mysql
+      - PMA_USER=root
+      - PMA_PASSWORD=
+
+    ports:
+      - 8081:80
+
+    networks:
+      app_net: null
+
+    depends_on:
+      - mysql
+
+  # -----------------------------------------------------------------------------------------------
+  # Ngrok
+  # -----------------------------------------------------------------------------------------------
+  ngrok:
+    image: devilbox/ngrok:latest
+    hostname: ngrok
+
+    environment:
+      - HTTP_TUNNELS=${NGROK_HTTP_TUNNELS:-httpd:httpd:80}
+      - AUTHTOKEN=${NGROK_AUTHTOKEN:-}
+      - REGION=${NGROK_REGION:-eu}
+
+    ports:
+      - 4040:4040
+
+    networks:
+      app_net: null
+
+    depends_on:
+      - bind
+      - php
+      - httpd
+
+networks:
+  app_net:
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: "false"
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.26.238.0/24
+          gateway: 172.26.238.1
+
+volumes:
+  mysql: null
+  smtp4dev-data: null
+  phpmyadmin: null

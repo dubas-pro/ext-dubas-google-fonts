@@ -3,8 +3,12 @@
     "name": "Dubas Google Fonts",
     "description": "Add most popular fonts from Google Fonts to your PDF templates.",
     "author": "DUBAS S.C. - contact@dubas.pro",
+    "authors": [
+        "Arkadiy Asuratov",
+        "Emil Dubielecki"
+    ],
     "acceptableVersions": [
-        "6.*"
+        ">=7.0.0"
     ],
     "php": [
         ">=7.3"
