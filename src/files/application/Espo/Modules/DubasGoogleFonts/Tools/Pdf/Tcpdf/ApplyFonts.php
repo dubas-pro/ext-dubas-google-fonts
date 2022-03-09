@@ -108,7 +108,6 @@ class ApplyFonts
             foreach ($fontList as $file) {
                 if (substr($file, -4) === '.ttf') {
                     $name = mb_strtolower(substr($file, 0, -4));
-                    $nameA = explode('-', $name);
 
                     $fileList[$name] = $dir . '/' . $file;
                 }
