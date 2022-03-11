@@ -13,7 +13,7 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "ssh://git@git.dubas.pro:2641/dubas/espo-dev-lib.git"
+            "url": "ssh://gitea@git.dubas.pro:2641/dubas/espo-dev-lib.git"
         }
     ],
     "scripts": {

@@ -14,8 +14,13 @@ project.properties
 
 build/
 site/
-vendor/
 tests/integration/config.php
-node_modules
+.env
 config.json
 config.php
+/extensions/
+
+# Package Managers
+.pnpm-store/
+node_modules/
+vendor/
