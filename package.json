@@ -1,6 +1,6 @@
 {
     "name": "espocrm-ext-dubas-google-fonts",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
@@ -10,6 +10,7 @@
     "license": "GPL-3.0",
     "dependencies": {
         "archiver": "^4.0.1",
+        "be": "^0.0.3",
         "fs-extra": "^9.0.0",
         "mv": "^2.1.1",
         "request": "^2.88.2",

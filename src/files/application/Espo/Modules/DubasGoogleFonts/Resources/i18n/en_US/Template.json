@@ -1,6 +1,7 @@
 {
     "options": {
         "fontFace": {
+            "exo": "Exo",
             "lato": "Lato",
             "montserrat": "Montserrat",
             "opensans": "Open Sans",
