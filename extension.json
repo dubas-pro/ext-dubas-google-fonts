@@ -2,17 +2,17 @@
     "module": "DubasGoogleFonts",
     "name": "Dubas Google Fonts",
     "description": "Add most popular fonts from Google Fonts to your PDF templates.",
-    "author": "DUBAS S.C. - contact@dubas.pro",
+    "author": "dubas s.c. - contact@dubas.pro",
     "authors": [
         "Arkadiy Asuratov",
         "Emil Dubielecki"
     ],
     "acceptableVersions": [
-        ">=7.0.0"
+        ">=7.1.0"
     ],
     "php": [
-        ">=7.3"
+        ">=8.0"
     ],
-    "releaseDate": "2022-03-11",
+    "releaseDate": "2023-03-07",
     "checkVersionUrl": "https://devcrm.it"
 }

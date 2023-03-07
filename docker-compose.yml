@@ -1,3 +1,4 @@
+---
 version: '3'
 
 ################################################################################
@@ -5,194 +6,135 @@ version: '3'
 ################################################################################
 services:
   # ------------------------------------------------------------
-  # Bind (DNS Server)
+  # Traefik Reverse Proxy
   # ------------------------------------------------------------
-  bind:
-    image: cytopia/bind
-    hostname: bind
-    restart: always
-
-    environment:
-      - DNS_FORWARDER=8.8.8.8,8.8.4.4
-      - DNSSEC_VALIDATE=no
+  traefik:
+    image: traefik:${TRAEFIK_VERSION:-2.9}
+    container_name: traefik
+    restart: unless-stopped
 
     ports:
-      - 1053:53/tcp
-      - 1053:53/udp
+      - '127.0.0.1:${HTTP_PORT:-8080}:80'
 
-    dns:
-      - 127.0.0.1
+    command:
+      - --log.level=DEBUG
 
-    networks:
-      app_net:
-        ipv4_address: 172.26.238.100
+      - --entrypoints.http.address=:80
+      - --entryPoints.http.forwardedheaders.insecure
+
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+
+      - --api=false
+      - --api.insecure=false
+      - --api.dashboard=false
+
+      - --global.sendanonymoususage=false
+      - --global.checknewversion=false
+      - --pilot.dashboard=false
+
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
 
   # ------------------------------------------------------------
   # PHP
   # ------------------------------------------------------------
-  php:
-    image: devilbox/php-fpm:8.0-work
+  php: &php
+    build:
+      context: ./docker/php
+      dockerfile: Dockerfile-8.1
+    container_name: php
     hostname: php
+    restart: unless-stopped
 
     environment:
-      - COMPOSER_MEMORY_LIMIT=-1
-
-    dns:
-      - 172.26.238.100
-
-    networks:
-      app_net:
-        ipv4_address: 172.26.238.10
+      DEBUG_ENTRYPOINT: '2'
+      DEBUG_COMPOSE_ENTRYPOINT: '2'
+      DOCKER_LOGS: '1'
+      COMPOSER_MEMORY_LIMIT: '-1'
+      COMPOSER_POOL_OPTIMIZER: '0'
 
     volumes:
-      - $PWD:/var/www/default:rw
+      - .:/shared/httpd:rw
 
       # Users SSH directory (read-only)
-      - ${HOME}/.ssh:/home/devilbox/.ssh:ro
+      - ${SSH_AUTH_SOCK_DIR:-/dev/null}:${SSH_AUTH_SOCK_DIR:-/dev/null}
+      - ~/.ssh:/home/devilbox/.ssh:ro
 
       # Users .bash_history file
-      - ${HOME}/.bash_history:/home/devilbox/.bash_history:rw
+      - ~/.bash_history:/home/devilbox/.bash_history:rw
 
-    working_dir: /var/www/default
-
+  # ------------------------------------------------------------
+  # Daemon
+  # ------------------------------------------------------------
+  daemon:
+    <<: *php
+    container_name: daemon
+    entrypoint: docker-daemon.sh
+    user: devilbox:devilbox
     depends_on:
-      - bind
+      - php
+
+  # ------------------------------------------------------------
+  # EspoCRM Console
+  # ------------------------------------------------------------
+  espo-console:
+    <<: *php
+    build: ./docker/espo-console
+    container_name: espo-console
 
   # ------------------------------------------------------------
   # Web Server
   # ------------------------------------------------------------
   httpd:
-    image: devilbox/apache-2.4
-    restart: always
-    hostname: httpd
+    image: nginx:${NGINX_VERSION:-stable-alpine}
+    container_name: httpd
+    restart: unless-stopped
 
-    environment:
-      - MAIN_VHOST_DOCROOT=site
-      - PHP_FPM_ENABLE=1
-      - PHP_FPM_SERVER_ADDR=172.26.238.10
-      - PHP_FPM_SERVER_PORT=9000
-      - PHP_FPM_TIMEOUT=180
-
-    ports:
-      - 8080:80
-
-    networks:
-      app_net:
-        ipv4_address: 172.26.238.11
+    security_opt:
+      - no-new-privileges:true
 
     volumes:
-      - $PWD:/var/www/default:rw
+      - .:/shared/httpd:ro
+      - ./docker/cfg/nginx/espo.conf:/etc/nginx/conf.d/default.conf:ro
+
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.espocrm.rule=Host(`localhost`)
+      - traefik.http.routers.espocrm.entrypoints=http
+      - traefik.http.routers.espocrm.service=espocrm-service
+      - traefik.http.services.espocrm-service.loadbalancer.server.port=80
 
     depends_on:
-      - bind
       - php
 
   # ------------------------------------------------------------
   # MySQL Database
   # ------------------------------------------------------------
   mysql:
-    image: devilbox/mysql:mariadb-10.5
+    image: mariadb:${MYSQL_VERSION:-10.6}
+    container_name: mysql
     hostname: mysql
-
-    environment:
-      - MYSQL_ROOT_PASSWORD
-      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
-      - MYSQL_DATABASE
+    restart: unless-stopped
 
     ports:
-      - 3306:3306
+      - '127.0.0.1:3306:3306'
 
-    networks:
-      app_net:
-        ipv4_address: 172.26.238.12
+    healthcheck:
+      test: ['CMD-SHELL', 'mysqladmin ping']
+      interval: 10s
+      timeout: 2s
+      retries: 10
+
+    environment:
+      MYSQL_ROOT_PASSWORD: ''
+      MYSQL_ALLOW_EMPTY_PASSWORD: '${MYSQL_ALLOW_EMPTY_PASSWORD:-yes}'
+      MYSQL_USER: '${MYSQL_PASSWORD:-espocrm}'
+      MYSQL_DATABASE: '${MYSQL_DATABASE:-espocrm}'
+      MYSQL_PASSWORD: '${MYSQL_PASSWORD:-espocrm}'
 
     volumes:
       - mysql:/var/lib/mysql:rw
 
-    depends_on:
-      - bind
-      - php
-      - httpd
-
-  # ------------------------------------------------------------
-  # Fake SMTP server
-  # ------------------------------------------------------------
-  smtp4dev:
-    image: rnwood/smtp4dev:v3
-    restart: always
-    hostname: smtp4dev
-
-    environment:
-      - ServerOptions__HostName=smtp4dev
-
-    ports:
-      - 5000:80
-      - 25:25
-      - 143:143
-
-    networks:
-      app_net:
-        ipv4_address: 172.26.238.13
-
-    volumes:
-      - smtp4dev-data:/smtp4dev
-
-  # ------------------------------------------------------------
-  # phpMyAdmin
-  # ------------------------------------------------------------
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin:latest
-    restart: always
-
-    environment:
-      - PMA_HOST=mysql
-      - PMA_USER=root
-      - PMA_PASSWORD=
-
-    ports:
-      - 8081:80
-
-    networks:
-      app_net: null
-
-    depends_on:
-      - mysql
-
-  # -----------------------------------------------------------------------------------------------
-  # Ngrok
-  # -----------------------------------------------------------------------------------------------
-  ngrok:
-    image: devilbox/ngrok:latest
-    hostname: ngrok
-
-    environment:
-      - HTTP_TUNNELS=${NGROK_HTTP_TUNNELS:-httpd:httpd:80}
-      - AUTHTOKEN=${NGROK_AUTHTOKEN:-}
-      - REGION=${NGROK_REGION:-eu}
-
-    ports:
-      - 4040:4040
-
-    networks:
-      app_net: null
-
-    depends_on:
-      - bind
-      - php
-      - httpd
-
-networks:
-  app_net:
-    driver: bridge
-    driver_opts:
-      com.docker.network.enable_ipv6: "false"
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.26.238.0/24
-          gateway: 172.26.238.1
-
 volumes:
-  mysql: null
-  smtp4dev-data: null
-  phpmyadmin: null
+  mysql: {}
