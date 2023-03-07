@@ -20,15 +20,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-namespace Espo\Modules\DubasGoogleFonts\Core\Utils\Database\Schema\rebuildActions;
+namespace Espo\Modules\DubasGoogleFonts\Core\Rebuild\Actions;
 
 use Espo\Core\Application;
-use Espo\Core\Utils\Database\Schema\BaseRebuildActions;
+use Espo\Core\Rebuild\RebuildAction;
+
 use Espo\Modules\DubasGoogleFonts\Tools\Pdf\Tcpdf\ApplyFonts as ApplyFontsTool;
 
-class ApplyFonts extends BaseRebuildActions
+class ApplyFonts implements RebuildAction
 {
-    public function afterRebuild(): void
+    public function process(): void
     {
         $app = new Application();
         $app->setupSystemUser();
