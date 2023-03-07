@@ -19,5 +19,6 @@
         "siteUrl": "http://localhost:8080",
         "adminUsername": "admin",
         "adminPassword": "1"
-    }
+    },
+    "customFixtures": "tests/fixtures/init.php"
 }
