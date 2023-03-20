@@ -3,9 +3,9 @@
     "version": "2.0.0",
     "description": "",
     "scripts": {
-        "eslint:fix": "eslint --fix src/**/src/**/*.js",
-        "lint:json": "prettier --write src/**/*.json",
-        "ecs:fix": "composer exec ecs -- --fix --clear-cache",
+        "js:fix": "eslint --fix src/**/src/**/*.js",
+        "json:fix": "prettier --write src/**/*.json",
+        "php:fix": "composer exec ecs -- --fix --clear-cache",
         "phpstan": "composer exec phpstan -- --xdebug"
     },
     "author": "dubas s.c. - contact@dubas.pro",

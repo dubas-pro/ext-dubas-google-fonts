@@ -3,8 +3,14 @@ parameters:
   level: 8
   paths:
     - src
+  excludePaths:
+    analyse:
+      - site
+      - src/*/vendor/*
 
   bootstrapFiles:
     - site/bootstrap.php
 
-  checkGenericClassInNonGenericObjectType: false
+  inferPrivatePropertyTypeFromConstructor: true
+  treatPhpDocTypesAsCertain: false
+  reportUnmatchedIgnoredErrors: false

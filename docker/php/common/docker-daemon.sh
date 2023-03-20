@@ -2,6 +2,6 @@
 
 set -eu
 
-/usr/local/bin/php /shared/httpd/site/daemon.php
+/usr/local/bin/php /var/www/default/site/daemon.php
 
 exec "$@"
