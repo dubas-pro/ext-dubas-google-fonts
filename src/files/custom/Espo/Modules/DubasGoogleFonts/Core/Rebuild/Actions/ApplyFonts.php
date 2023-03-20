@@ -21,18 +21,99 @@
 
 namespace Espo\Modules\DubasGoogleFonts\Core\Rebuild\Actions;
 
-use Espo\Core\Application;
 use Espo\Core\Rebuild\RebuildAction;
-use Espo\Modules\DubasGoogleFonts\Tools\Pdf\Tcpdf\ApplyFonts as ApplyFontsTool;
+use Espo\Core\Utils\Metadata;
+use Espo\Core\Utils\Resource\PathProvider;
+use TCPDF_FONTS;
 
 class ApplyFonts implements RebuildAction
 {
+    private string $dirPath = 'fonts';
+
+    private string $tcpdfFontsDir = 'vendor/tecnickcom/tcpdf/fonts';
+
+    /**
+     * @var string[]
+     */
+    private array $fontStyleList = [
+        'regular', 'bold', 'italic', 'bolditalic',
+    ];
+
+    /**
+     * @var array<string,string>
+     */
+    private array $fontStylesMap = [
+        'regular' => '',
+        'bold' => 'b',
+        'italic' => 'i',
+        'bolditalic' => 'bi',
+    ];
+
+    public function __construct(
+        private Metadata $metadata,
+        private PathProvider $pathProvider
+    ) {
+    }
+
     public function process(): void
     {
-        $app = new Application();
-        $app->setupSystemUser();
+        $fontPathList = $this->getFontPathList();
 
-        (new ApplyFontsTool($app->getContainer()))
-            ->rebuild();
+        $fontFaceList = $this->metadata
+            ->get(['app', 'pdfEngines', 'Tcpdf', 'fontFaceList']);
+
+        foreach ($fontFaceList as $fontFace) {
+            foreach ($this->fontStyleList as $fontStyle) {
+                $fontName = $fontFace . '-' . $fontStyle;
+                $fontPath = $fontPathList[$fontName] ?? null;
+
+                if (!$fontPath) {
+                    continue;
+                }
+
+                $targetFontPath = $this->tcpdfFontsDir . '/' . $fontFace . $this->fontStylesMap[$fontStyle] . '.php';
+                if (file_exists($targetFontPath)) {
+                    continue;
+                }
+
+                TCPDF_FONTS::addTTFfont(
+                    realpath($fontPath),
+                    'TrueType',
+                    '',
+                    32,
+                    realpath($this->tcpdfFontsDir) . '/',
+                    3,
+                    1,
+                    false,
+                    false
+                );
+            }
+        }
+    }
+
+    /**
+     * @return array<string,string>
+     */
+    private function getFontPathList(): array
+    {
+        $dirList = [];
+        foreach ($this->metadata->getModuleList() as $moduleName) {
+            $dirList[] = $this->pathProvider->getModule($moduleName) . $this->dirPath;
+        }
+        $dirList[] = $this->pathProvider->getCustom() . $this->dirPath;
+
+        $fileList = [];
+        foreach ($dirList as $dir) {
+            $fontList = scandir($dir) ?: [];
+            foreach ($fontList as $file) {
+                if (substr($file, -4) === '.ttf') {
+                    $name = mb_strtolower(substr($file, 0, -4));
+
+                    $fileList[$name] = $dir . '/' . $file;
+                }
+            }
+        }
+
+        return $fileList;
     }
 }
