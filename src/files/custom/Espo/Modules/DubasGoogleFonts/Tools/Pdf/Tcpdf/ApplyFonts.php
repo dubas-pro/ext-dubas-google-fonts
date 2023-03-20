@@ -1,10 +1,9 @@
 <?php
-
-/*
+/**
  * This file is part of the Dubas Google Fonts - EspoCRM extension.
  *
- * DUBAS S.C. - contact@dubas.pro
- * Copyright (C) 2022 Arkadiy Asuratov, Emil Dubielecki
+ * dubas s.c. - contact@dubas.pro
+ * Copyright (C) 2021-2023 Arkadiy Asuratov, Emil Dubielecki
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
