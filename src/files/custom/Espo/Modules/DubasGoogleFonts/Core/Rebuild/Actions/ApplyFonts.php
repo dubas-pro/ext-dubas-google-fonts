@@ -104,6 +104,10 @@ class ApplyFonts implements RebuildAction
 
         $fileList = [];
         foreach ($dirList as $dir) {
+            if (!is_dir($dir)) {
+                continue;
+            }
+
             $fontList = scandir($dir) ?: [];
             foreach ($fontList as $file) {
                 if (substr($file, -4) === '.ttf') {
