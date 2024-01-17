@@ -7,8 +7,13 @@
         "Arkadiy Asuratov",
         "Emil Dubielecki"
     ],
+    "dependencies": {
+        "Tcpdf": [
+            ">=0.1.0"
+        ]
+    },
     "acceptableVersions": [
-        ">=7.1.0"
+        ">=8.1.0 <9.0.0"
     ],
     "php": [
         "~8.0.0, ~8.1.0 || ~8.2.0 || ~8.3.0"

@@ -30,7 +30,7 @@ class ApplyFonts implements RebuildAction
 {
     private string $dirPath = 'fonts';
 
-    private string $tcpdfFontsDir = 'vendor/tecnickcom/tcpdf/fonts';
+    private string $tcpdfFontsDir = 'custom/Espo/Modules/Tcpdf/vendor/tecnickcom/tcpdf/fonts';
 
     /**
      * @var string[]
