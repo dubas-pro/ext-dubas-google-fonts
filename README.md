@@ -6,6 +6,10 @@ Product page: [https://devcrm.it/google-fonts](https://devcrm.it/google-fonts)
 
 Documentation: [https://docs.dubas.pro/extensions/google-fonts/](https://docs.dubas.pro/extensions/google-fonts/)
 
+## Requirements
+
+The extension works only with Tcpdf PDF engine. Since EspoCRM 8.1.0 Tcpdf is not included in EspoCRM by default. You can install it from [GitHub](https://github.com/yurikuzn/ext-tcpdf/releases/latest).
+
 ## Development
 
 To setup development environment please follow the steps below:
