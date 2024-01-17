@@ -19,9 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use Exception;
 use Espo\Core\Container;
 use Espo\Core\DataManager;
-use Exception;
+use Espo\Core\Utils\Config;
 
 class BeforeInstall
 {
@@ -30,6 +31,15 @@ class BeforeInstall
     public function run(Container $container): void
     {
         $this->container = $container;
+
+        /** @var Config $config */
+        $config = $container->get('config');
+
+        $pdfEngine = $config->get('pdfEngine');
+
+        if ($pdfEngine !== 'Tcpdf') {
+            throw new Exception('This extension requires TCPDF extension to be installed and enabled. https://github.com/yurikuzn/ext-tcpdf/releases/latest');
+        }
     }
 
     protected function clearCache(): void
