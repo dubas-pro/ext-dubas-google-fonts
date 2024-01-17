@@ -19,10 +19,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use Exception;
 use Espo\Core\Container;
 use Espo\Core\DataManager;
 use Espo\Core\Utils\Config;
+use Exception;
 
 class BeforeInstall
 {
