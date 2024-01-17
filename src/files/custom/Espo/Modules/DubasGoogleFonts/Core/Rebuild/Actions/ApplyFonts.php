@@ -22,6 +22,7 @@
 namespace Espo\Modules\DubasGoogleFonts\Core\Rebuild\Actions;
 
 use Espo\Core\Rebuild\RebuildAction;
+use Espo\Core\Utils\Log;
 use Espo\Core\Utils\Metadata;
 use Espo\Core\Utils\Resource\PathProvider;
 use TCPDF_FONTS;
@@ -51,7 +52,8 @@ class ApplyFonts implements RebuildAction
 
     public function __construct(
         private Metadata $metadata,
-        private PathProvider $pathProvider
+        private PathProvider $pathProvider,
+        private Log $log
     ) {
     }
 
@@ -75,6 +77,8 @@ class ApplyFonts implements RebuildAction
                 if (file_exists($targetFontPath)) {
                     continue;
                 }
+
+                $this->log->debug('Adding font: ' . $fontName . ' from ' . $fontPath . ' to ' . $targetFontPath . '.');
 
                 TCPDF_FONTS::addTTFfont(
                     realpath($fontPath),
