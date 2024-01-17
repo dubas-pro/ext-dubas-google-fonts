@@ -2,6 +2,29 @@
 version: '3'
 
 ################################################################################
+# EXTENSION FIELDS (X-PROPERTIES)
+# https://docs.docker.com/compose/compose-file/#extension
+################################################################################
+x-php-build-args: &php-build-args
+  PHP_VERSION: ${PHP_VERSION:-8.2-work}
+  DOCKER_DAEMON_SH: |-
+    #!/bin/bash
+    set -eu
+    /usr/local/bin/php /var/www/default/site/daemon.php
+    exec "$$@"
+  DOCKER_WEBSOCKET_SH: |-
+    #!/bin/bash
+    set -eu
+    /usr/local/bin/php /var/www/default/site/websocket.php
+    exec "$$@"
+
+################################################################################
+# VOLUMES
+################################################################################
+volumes:
+  mysql: {}
+
+################################################################################
 # SERVICES
 ################################################################################
 services:
@@ -9,13 +32,10 @@ services:
   # PHP
   # ------------------------------------------------------------
   php: &php
-    build: ./docker/php
     container_name: php
-    hostname: php
     restart: unless-stopped
-
     working_dir: /var/www/default
-
+    volumes: [.:/var/www/default:rw]
     environment:
       NEW_UID: 1000
       NEW_GID: 1000
@@ -24,16 +44,42 @@ services:
       DOCKER_LOGS: '1'
       COMPOSER_MEMORY_LIMIT: '-1'
       COMPOSER_POOL_OPTIMIZER: '0'
+    # -----------------------------------------------
+    # Build
+    # -----------------------------------------------
+    build: &php-build
+      args:
+        <<: *php-build-args
+      dockerfile_inline: |
+        ARG PHP_VERSION
+        FROM devilbox/php-fpm:$${PHP_VERSION}
+        USER devilbox
+        RUN if [ "$${PHP_VERSION#8}" != "$$PHP_VERSION" ]; then \
+          /usr/local/bin/composer global require dubas/espo-console phpstan/phpstan; \
+        fi
+        USER root
+        RUN if [ "$${PHP_VERSION#8}" != "$$PHP_VERSION" ]; then \
+          ln --symbolic /home/devilbox/.composer/vendor/bin/espo /usr/local/bin/espo; \
+        fi
+        ARG DOCKER_DAEMON_SH
+        ARG DOCKER_WEBSOCKET_SH
+        RUN set -ex; \
+          echo "$${DOCKER_DAEMON_SH}" > /usr/local/bin/docker-daemon.sh; \
+          echo "$${DOCKER_WEBSOCKET_SH}" > /usr/local/bin/docker-websocket.sh; \
+          chmod +x /usr/local/bin/docker-daemon.sh /usr/local/bin/docker-websocket.sh; \
+          ln --symbolic /opt/nvm/versions/node/*/bin/pnpm /usr/local/bin/pnpm;
 
-    volumes:
-      - .:/var/www/default:rw
-
-      # Users SSH directory (read-only)
-      - ${SSH_AUTH_SOCK_DIR:-/dev/null}:${SSH_AUTH_SOCK_DIR:-/dev/null}
-      - ~/.ssh:/home/devilbox/.ssh:ro
-
-      # Users .bash_history file
-      - ~/.bash_history:/home/devilbox/.bash_history:rw
+  # ------------------------------------------------------------
+  # PHP for HTTPD
+  # ------------------------------------------------------------
+  php-httpd:
+    container_name: php-httpd
+    <<: *php
+    build:
+      <<: *php-build
+      args:
+        <<: *php-build-args
+        PHP_VERSION: ${PHP_HTTPD_VERSION:-8.1-work}
 
   # ------------------------------------------------------------
   # Web Server
@@ -42,54 +88,32 @@ services:
     image: devilbox/apache-2.4:alpine
     container_name: httpd
     restart: unless-stopped
-
+    ports: [8080:80]
+    volumes: [.:/var/www/default:ro]
+    depends_on: [php]
     environment:
       NEW_UID: 1000
       NEW_GID: 1000
       MAIN_VHOST_ENABLE: 1
       MAIN_VHOST_DOCROOT_DIR: site
       PHP_FPM_ENABLE: 1
-      PHP_FPM_SERVER_ADDR: php
+      PHP_FPM_SERVER_ADDR: php-httpd
       PHP_FPM_SERVER_PORT: 9000
       PHP_FPM_TIMEOUT: 180
-      MAIN_VHOST_BACKEND: conf:phpfpm:tcp:php:9000
-
-    ports:
-      - '8080:80'
-
-    volumes:
-      - .:/var/www/default:ro
-
-    depends_on:
-      - php
+      MAIN_VHOST_BACKEND: conf:phpfpm:tcp:php-httpd:9000
 
   # ------------------------------------------------------------
   # MySQL Database
   # ------------------------------------------------------------
   mysql:
-    image: mariadb:${MYSQL_VERSION:-10.6}
+    image: mariadb:${MYSQL_VERSION:-lts}
     container_name: mysql
-    hostname: mysql
     restart: unless-stopped
-
-    ports:
-      - '3306:3306'
-
-    healthcheck:
-      test: ['CMD-SHELL', 'mysqladmin ping']
-      interval: 10s
-      timeout: 2s
-      retries: 10
-
+    ports: [3306:3306]
+    volumes: [mysql:/var/lib/mysql:rw]
     environment:
       MYSQL_ROOT_PASSWORD: ''
-      MYSQL_ALLOW_EMPTY_PASSWORD: '${MYSQL_ALLOW_EMPTY_PASSWORD:-yes}'
-      MYSQL_USER: '${MYSQL_PASSWORD:-espocrm}'
-      MYSQL_DATABASE: '${MYSQL_DATABASE:-espocrm}'
-      MYSQL_PASSWORD: '${MYSQL_PASSWORD:-espocrm}'
-
-    volumes:
-      - mysql:/var/lib/mysql:rw
-
-volumes:
-  mysql: {}
+      MYSQL_ALLOW_EMPTY_PASSWORD: ${MYSQL_ALLOW_EMPTY_PASSWORD:-yes}
+      MYSQL_USER: ${MYSQL_PASSWORD:-espocrm}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-espocrm}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-espocrm}

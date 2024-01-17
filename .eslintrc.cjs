@@ -26,6 +26,7 @@ const copyrightHeader = [
 module.exports = {
     extends: 'eslint:recommended',
     env: {
+        'es6': true,
         'browser': true,
         'node': true,
         'es2021': true,
@@ -36,16 +37,24 @@ module.exports = {
         'define': 'readonly',
         '_': 'readonly',
         'moment': 'readonly',
-        'Backbone': 'readonly'
+        'Backbone': 'readonly',
+        'Handlebars': 'readonly',
+        'ace': 'readonly'
     },
+    parser: '@babel/eslint-parser',
     parserOptions: {
-        'ecmaVersion': 12,
-        'sourceType': 'module'
+        requireConfigFile: false,
+        babelOptions: {
+            babelrc: false,
+            configFile: false,
+            presets: ['@babel/preset-env'],
+        }
     },
     plugins: [
         'header'
     ],
     ignorePatterns: [
+        '/build/**',
         '/site/**',
         'src/**/lib/**'
     ],

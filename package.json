@@ -2,17 +2,27 @@
     "name": "espocrm-ext-dubas-google-fonts",
     "version": "2.0.1",
     "description": "",
+    "engines": {
+        "npm": ">=7",
+        "node": ">=15"
+    },
     "scripts": {
         "js:fix": "eslint --fix src/**/src/**/*.js",
         "json:fix": "prettier --write src/**/*.json",
-        "php:fix": "composer exec ecs -- --fix --clear-cache",
-        "phpstan": "composer exec phpstan -- --xdebug"
+        "php:fix": "composer exec ecs check -- ./*.php* src/files/custom src/scripts tests/fixtures/init.php --fix --clear-cache",
+        "phpstan": "composer exec phpstan -- --xdebug",
+        "rector": "composer exec rector -- --clear-cache",
+        "fix:all": "npm run js:fix && npm run json:fix && npm run php:fix"
     },
+    "type": "module",
     "author": "dubas s.c. - contact@dubas.pro",
     "license": "GPL-3.0",
     "dependencies": {
+        "@babel/eslint-parser": "^7.23.3",
         "eslint": "^7.25.0",
         "eslint-plugin-header": "^3.1.1",
+        "espo-extension-tools": "github:espocrm/extension-tools#0.1.2",
+        "fs-extra": "^9.0.0",
         "prettier": "^2.6.2"
     }
 }

@@ -8,7 +8,7 @@
         "host": "mysql",
         "port": "",
         "charset": "utf8mb4",
-        "dbname": "ext-dubas-google-fonts",
+        "dbname": "espocrm",
         "user": "root",
         "password": ""
     },
