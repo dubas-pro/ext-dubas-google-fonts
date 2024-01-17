@@ -1,5 +1,6 @@
 {
     "actionClassNameList": [
+        "__APPEND__",
         "Espo\\Modules\\DubasGoogleFonts\\Core\\Rebuild\\Actions\\ApplyFonts"
     ]
 }
