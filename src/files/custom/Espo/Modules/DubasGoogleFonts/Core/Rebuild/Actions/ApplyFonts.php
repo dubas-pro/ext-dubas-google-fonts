@@ -22,6 +22,7 @@
 namespace Espo\Modules\DubasGoogleFonts\Core\Rebuild\Actions;
 
 use Espo\Core\Rebuild\RebuildAction;
+use Espo\Core\Utils\File\Manager as FileManager;
 use Espo\Core\Utils\Log;
 use Espo\Core\Utils\Metadata;
 use Espo\Core\Utils\Resource\PathProvider;
@@ -53,7 +54,8 @@ class ApplyFonts implements RebuildAction
     public function __construct(
         private Metadata $metadata,
         private PathProvider $pathProvider,
-        private Log $log
+        private Log $log,
+        private FileManager $fileManager,
     ) {
     }
 
@@ -73,23 +75,27 @@ class ApplyFonts implements RebuildAction
                     continue;
                 }
 
-                $targetFontPath = $this->tcpdfFontsDir . '/' . $fontFace . $this->fontStylesMap[$fontStyle] . '.php';
-                if (file_exists($targetFontPath)) {
-                    continue;
+                $targetFontPath = $this->tcpdfFontsDir . '/' . $fontFace . $this->fontStylesMap[$fontStyle];
+
+                if (file_exists($targetFontPath . '.php')) {
+                    $this->fileManager->removeFile($targetFontPath . '.php');
+                }
+
+                if (file_exists($targetFontPath . '.z')) {
+                    $this->fileManager->removeFile($targetFontPath . '.z');
+                }
+
+                if (file_exists($targetFontPath . '.ctg.z')) {
+                    $this->fileManager->removeFile($targetFontPath . '.ctg.z');
                 }
 
                 $this->log->debug('Adding font: ' . $fontName . ' from ' . $fontPath . ' to ' . $targetFontPath . '.');
 
                 TCPDF_FONTS::addTTFfont(
                     realpath($fontPath),
-                    'TrueType',
+                    'TrueTypeUnicode',
                     '',
-                    32,
-                    realpath($this->tcpdfFontsDir) . '/',
-                    3,
-                    1,
-                    false,
-                    false
+                    32
                 );
             }
         }
