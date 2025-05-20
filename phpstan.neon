@@ -1,8 +1,12 @@
 parameters:
-  phpVersion: 80000 # PHP 8.0
+  phpVersion: 80100  # PHP 8.1
   level: 8
   paths:
     - src
+
+  scanDirectories:
+    - site/custom/Espo/Modules/Tcpdf/vendor
+
   excludePaths:
     analyse:
       - site
