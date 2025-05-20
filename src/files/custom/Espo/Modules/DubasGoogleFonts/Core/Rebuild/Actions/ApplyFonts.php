@@ -91,8 +91,15 @@ class ApplyFonts implements RebuildAction
 
                 $this->log->debug('Adding font: ' . $fontName . ' from ' . $fontPath . ' to ' . $targetFontPath . '.');
 
+                $fontFile = realpath($fontPath);
+                if (!$fontFile) {
+                    $this->log->error('Font file not found: ' . $fontPath);
+
+                    continue;
+                }
+
                 TCPDF_FONTS::addTTFfont(
-                    realpath($fontPath),
+                    $fontFile,
                     'TrueTypeUnicode',
                     '',
                     32
