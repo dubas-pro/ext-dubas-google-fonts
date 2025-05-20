@@ -42,7 +42,7 @@ class ApplyFonts implements RebuildAction
     ];
 
     /**
-     * @var array<string,string>
+     * @var array<string, string>
      */
     private array $fontStylesMap = [
         'regular' => '',
@@ -113,7 +113,7 @@ class ApplyFonts implements RebuildAction
     }
 
     /**
-     * @return array<string,string>
+     * @return array<string, string>
      */
     private function getFontPathList(): array
     {
