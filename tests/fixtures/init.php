@@ -3,7 +3,7 @@
  * This file is part of the Dubas Google Fonts - EspoCRM extension.
  *
  * dubas s.c. - contact@dubas.pro
- * Copyright (C) 2021-2024 Arkadiy Asuratov, Emil Dubielecki
+ * Copyright (C) 2021-2025 Arkadiy Asuratov, Emil Dubielecki
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
