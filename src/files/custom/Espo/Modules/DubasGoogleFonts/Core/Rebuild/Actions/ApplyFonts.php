@@ -66,6 +66,10 @@ class ApplyFonts implements RebuildAction
         $fontFaceList = $this->metadata
             ->get(['app', 'pdfEngines', 'Tcpdf', 'fontFaceList']);
 
+        if (!is_array($fontFaceList)) {
+            $fontFaceList = [];
+        }
+
         foreach ($fontFaceList as $fontFace) {
             foreach ($this->fontStyleList as $fontStyle) {
                 $fontName = $fontFace . '-' . $fontStyle;
